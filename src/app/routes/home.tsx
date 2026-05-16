@@ -1,8 +1,13 @@
+import { useState } from "react";
+import { Database } from "lucide-react";
 import { MovieList } from "@/components/movie-list";
 import { HeroCarousel, type HeroCarouselItem } from "@/components/hero-carousel";
+import { ProviderSelector } from "@/components/provider-selector";
 import type { MovieCardProps } from "@/components/movie-card";
 
 export function HomePage() {
+  const [activeProvider, setActiveProvider] = useState("None");
+
   const heroMovies: HeroCarouselItem[] = [
     { 
       id: "1", 
@@ -47,19 +52,34 @@ export function HomePage() {
   ];
 
   return (
-    <div className="w-full bg-background text-foreground overflow-x-hidden">
-      <HeroCarousel items={heroMovies} />
+    <div className="relative w-full min-h-screen bg-background text-foreground overflow-x-hidden">
+      <ProviderSelector selected={activeProvider} onSelect={setActiveProvider} />
       
-      <div className="p-6 lg:p-10 -mt-10 relative z-40 space-y-12 pb-10">
-        <MovieList title="New Releases" movies={newReleases} />
-        <MovieList title="Posters Only Mode" movies={popularWithoutText} />
-        <MovieList title="From the Community" movies={newReleases.slice().reverse()} />
-      </div>
+      {activeProvider === "None" ? (
+        <div className="flex flex-col items-center justify-center h-screen px-4 text-center">
+          <Database className="w-16 h-16 text-muted-foreground mb-4 opacity-50" />
+          <h2 className="text-2xl font-bold text-white mb-2">No Provider Selected</h2>
+          <p className="text-muted-foreground max-w-md">
+            Please select a provider from the top right menu to fetch home page content.
+          </p>
+        </div>
+      ) : (
+        <>
+          <HeroCarousel items={heroMovies} />
+          
+          <div className="p-6 lg:p-10 -mt-10 relative z-40 space-y-12 pb-10">
+            <MovieList title={`${activeProvider} New Releases`} movies={newReleases} />
+            <MovieList title="Posters Only Mode" movies={popularWithoutText} />
+            <MovieList title="From the Community" movies={newReleases.slice().reverse()} />
+          </div>
+        </>
+      )}
     </div>
   );
 }
 
 export const Component = HomePage;
+
 
 
 
