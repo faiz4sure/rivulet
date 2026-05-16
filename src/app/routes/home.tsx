@@ -22,13 +22,13 @@ export function HomePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-background p-6 lg:p-10 text-foreground overflow-x-hidden">
+    <div className="w-full bg-background p-6 lg:p-10 text-foreground overflow-x-hidden">
       <div className="mb-10 px-2">
         <h1 className="text-4xl font-extrabold tracking-tight text-white mb-2">Rivulet</h1>
         <p className="text-muted-foreground text-lg">Initial UI</p>
       </div>
-      
-      <div className="space-y-12">
+
+      <div className="space-y-12 pb-10">
         <MovieList title="New Releases" movies={newReleases} />
         <MovieList title="Posters Only Mode" movies={popularWithoutText} />
         <MovieList title="From the Community" movies={newReleases.slice().reverse()} />
@@ -37,7 +37,7 @@ export function HomePage() {
   );
 }
 
-// Necessary for react router to lazy load.
 export const Component = HomePage;
+
 
 

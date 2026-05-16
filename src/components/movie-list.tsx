@@ -55,3 +55,4 @@ export function MovieList({ title, movies }: MovieListProps) {
     </div>
   );
 }
+
