@@ -16,9 +16,9 @@
       "icons/icon.ico"
     ]
   },
-  "productName": "Watchium",
+  "productName": "Rivulet",
   "version": "0.1.0",
-  "identifier": "com.watchium.app",
+  "identifier": "com.rivulet.app",
   "plugins": {
     "process": {
       "active": true
@@ -30,7 +30,7 @@
     },
     "windows": [
       {
-        "title": "Watchium",
+        "title": "Rivulet",
         "width": 1000,
         "height": 600,
         "dragDropEnabled": false

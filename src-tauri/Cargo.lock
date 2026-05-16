@@ -2495,6 +2495,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "rivulet"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-process",
+ "tauri-plugin-shell",
+]
+
+[[package]]
 name = "rustc-hash"
 version = "2.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3951,18 +3963,6 @@ dependencies = [
  "hashbrown 0.15.5",
  "indexmap 2.14.0",
  "semver",
-]
-
-[[package]]
-name = "watchium-tauri"
-version = "0.1.0"
-dependencies = [
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "tauri-plugin-process",
- "tauri-plugin-shell",
 ]
 
 [[package]]
