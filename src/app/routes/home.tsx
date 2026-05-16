@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Database } from "lucide-react";
 import { MovieList } from "@/components/movie-list";
 import { HeroCarousel, type HeroCarouselItem } from "@/components/hero-carousel";
-import { ProviderSelector } from "@/components/provider-selector";
+import { TopNav } from "@/components/top-nav";
 import type { MovieCardProps } from "@/components/movie-card";
 
 export function HomePage() {
@@ -53,7 +53,7 @@ export function HomePage() {
 
   return (
     <div className="relative w-full min-h-screen bg-background text-foreground overflow-x-hidden">
-      <ProviderSelector selected={activeProvider} onSelect={setActiveProvider} />
+      <TopNav activeProvider={activeProvider} onProviderSelect={setActiveProvider} />
       
       {activeProvider === "None" ? (
         <div className="flex flex-col items-center justify-center h-screen px-4 text-center">

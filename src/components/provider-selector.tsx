@@ -23,10 +23,10 @@ export function ProviderSelector({ selected, onSelect }: ProviderSelectorProps) 
   }, []);
 
   return (
-    <div className="absolute top-6 right-10 z-50" ref={dropdownRef}>
+    <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 bg-black/40 hover:bg-black/60 backdrop-blur-md border border-white/10 text-white px-4 py-2.5 rounded-full font-medium transition-all shadow-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
+        className="flex items-center gap-2 bg-black/40 hover:bg-black/60 backdrop-blur-md border border-white/10 text-white px-4 h-10 rounded-full font-medium transition-all shadow-lg focus:outline-none"
         aria-haspopup="listbox"
         aria-expanded={isOpen}
       >
