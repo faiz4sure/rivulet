@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Database } from "lucide-react";
+import { Server } from "lucide-react";
 import { MovieList } from "@/components/movie-list";
 import { HeroCarousel, type HeroCarouselItem } from "@/components/hero-carousel";
 import { TopNav } from "@/components/top-nav";
@@ -57,7 +57,7 @@ export function HomePage() {
       
       {activeProvider === "None" ? (
         <div className="flex flex-col items-center justify-center h-screen px-4 text-center">
-          <Database className="w-16 h-16 text-muted-foreground mb-4 opacity-50" />
+          <Server className="w-16 h-16 text-muted-foreground mb-4 opacity-50" />
           <h2 className="text-2xl font-bold text-white mb-2">No Provider Selected</h2>
           <p className="text-muted-foreground max-w-md">
             Please select a provider from the top right menu to fetch home page content.

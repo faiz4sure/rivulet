@@ -27,14 +27,14 @@ export function MovieList({ title, movies }: MovieListProps) {
         <div className="flex items-center gap-2">
           <button 
             onClick={() => scroll("left")}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary/80 text-secondary-foreground transition-all hover:bg-secondary hover:scale-105 active:scale-95 focus:outline-none focus:ring-1 focus:ring-ring"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary/80 text-secondary-foreground transition-all hover:bg-secondary hover:scale-105 active:scale-95 focus:outline-none"
             aria-label="Scroll left"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
           <button 
             onClick={() => scroll("right")}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary/80 text-secondary-foreground transition-all hover:bg-secondary hover:scale-105 active:scale-95 focus:outline-none focus:ring-1 focus:ring-ring"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary/80 text-secondary-foreground transition-all hover:bg-secondary hover:scale-105 active:scale-95 focus:outline-none"
             aria-label="Scroll right"
           >
             <ChevronRight className="h-5 w-5" />

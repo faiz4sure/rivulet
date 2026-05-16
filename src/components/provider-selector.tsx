@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown, Database } from "lucide-react";
+import { ChevronDown, Server } from "lucide-react";
 
 interface ProviderSelectorProps {
   selected: string;
@@ -30,7 +30,7 @@ export function ProviderSelector({ selected, onSelect }: ProviderSelectorProps) 
         aria-haspopup="listbox"
         aria-expanded={isOpen}
       >
-        <Database className="w-4 h-4 text-gray-300" />
+        <Server className="w-4 h-4 text-gray-300" />
         <span className="text-sm">{selected}</span>
         <ChevronDown className={`w-4 h-4 text-gray-300 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
       </button>
