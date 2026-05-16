@@ -1,7 +1,32 @@
 import { MovieList } from "@/components/movie-list";
+import { HeroCarousel, type HeroCarouselItem } from "@/components/hero-carousel";
 import type { MovieCardProps } from "@/components/movie-card";
 
 export function HomePage() {
+  const heroMovies: HeroCarouselItem[] = [
+    { 
+      id: "1", 
+      title: "Dune: Part Two", 
+      backdropUrl: "https://image.tmdb.org/t/p/original/8rpDcsfLJypbO6vtecsmREy9O8C.jpg",
+      tags: ["Action", "Adventure", "Sci-Fi"],
+      description: "Paul Atreides unites with Chani and the Fremen while on a warpath of revenge against the conspirators who destroyed his family."
+    },
+    { 
+      id: "2", 
+      title: "The Batman", 
+      backdropUrl: "https://image.tmdb.org/t/p/original/tRS6jvPM9qPrrnx2KRp3ew96Yot.jpg",
+      tags: ["Crime", "Mystery", "Thriller"],
+      description: "In his second year of fighting crime, Batman uncovers corruption in Gotham City that connects to his own family while facing a serial killer known as the Riddler."
+    },
+    { 
+      id: "3", 
+      title: "Oppenheimer", 
+      backdropUrl: "https://image.tmdb.org/t/p/original/fm6KqXpk3M2HVveHwCrBSSBaO0V.jpg",
+      tags: ["Drama", "History"],
+      description: "The story of J. Robert Oppenheimer's role in the development of the atomic bomb during World War II."
+    }
+  ];
+
   const newReleases: MovieCardProps[] = [
     { title: "Dune: Part Two", posterUrl: "https://image.tmdb.org/t/p/w600_and_h900_bestv2/1pdfLvkbY9ohJlCjQH2JGqqUT1O.jpg", year: "2024", rating: "8.8" },
     { title: "The Batman", posterUrl: "https://image.tmdb.org/t/p/w600_and_h900_bestv2/74xTEgt7R36Fpooo50r9T25onhq.jpg", year: "2022", rating: "7.9" },
@@ -22,13 +47,10 @@ export function HomePage() {
   ];
 
   return (
-    <div className="w-full bg-background p-6 lg:p-10 text-foreground overflow-x-hidden">
-      <div className="mb-10 px-2">
-        <h1 className="text-4xl font-extrabold tracking-tight text-white mb-2">Rivulet</h1>
-        <p className="text-muted-foreground text-lg">Initial UI</p>
-      </div>
-
-      <div className="space-y-12 pb-10">
+    <div className="w-full bg-background text-foreground overflow-x-hidden">
+      <HeroCarousel items={heroMovies} />
+      
+      <div className="p-6 lg:p-10 -mt-10 relative z-40 space-y-12 pb-10">
         <MovieList title="New Releases" movies={newReleases} />
         <MovieList title="Posters Only Mode" movies={popularWithoutText} />
         <MovieList title="From the Community" movies={newReleases.slice().reverse()} />
