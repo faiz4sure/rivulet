@@ -44,7 +44,7 @@ export function MovieList({ title, movies }: MovieListProps) {
       
       <div 
         ref={scrollContainerRef}
-        className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide px-2 snap-x"
+        className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 pt-2 scrollbar-hide px-2 snap-x"
       >
         {movies.map((movie, index) => (
           <div key={index} className="snap-start shrink-0">

@@ -115,7 +115,6 @@
   }
   html {
     @apply select-none;
-    @apply overscroll-none;
   }
   body {
     @apply bg-background text-foreground min-h-screen;
