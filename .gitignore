@@ -3,3 +3,7 @@ dist/
 package-lock.json
 example/
 *.png
+.vscode/
+tauri-plugin-js/
+extension1/
+extension2/

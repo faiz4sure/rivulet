@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { Play, Plus, ArrowLeft, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
