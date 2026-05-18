@@ -1,4 +1,4 @@
-import { spawn, createChannel, kill } from "tauri-plugin-js-api";
+import { spawn, createChannel, kill, onStdout, onStderr } from "tauri-plugin-js-api";
 import type { RivuletExtension } from "./types";
 
 export class PluginRunner {
@@ -17,12 +17,16 @@ export class PluginRunner {
         sidecar: "deno",
         args: [
           "run", 
+          "--node-modules-dir=auto",
           "--allow-net", 
           "--allow-read=dummy/storage/", 
           "--allow-write=dummy/storage/", 
           this.scriptPath
         ]
       });
+
+      onStdout(this.pluginId, (line) => console.log(`[Deno: ${this.pluginId}] ${line}`));
+      onStderr(this.pluginId, (line) => console.error(`[Deno ERROR: ${this.pluginId}] ${line}`));
 
       const { api, channel } = await createChannel<Record<string, never>, RivuletExtension>(this.pluginId);
 

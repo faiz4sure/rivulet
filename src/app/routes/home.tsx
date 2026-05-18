@@ -1,14 +1,49 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Server } from "lucide-react";
 import { useNavigate } from "react-router";
 import { MovieList } from "@/components/movie-list";
 import { HeroCarousel, type HeroCarouselItem } from "@/components/hero-carousel";
 import { TopNav } from "@/components/top-nav";
 import type { MovieCardProps } from "@/components/movie-card";
+import { PluginRunner } from "@/lib/plugin/runner";
+import type { HomePageResult } from "@/lib/plugin/types";
 
 export function HomePage() {
   const [activeProvider, setActiveProvider] = useState("None");
+  const [pluginData, setPluginData] = useState<HomePageResult | null>(null);
+  const [pluginError, setPluginError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    async function loadData() {
+      if (activeProvider === "None") {
+        setPluginData(null);
+        return;
+      }
+      
+      if (activeProvider === "dummyProvider") {
+        setIsLoading(true);
+        setPluginError(null);
+        setPluginData(null);
+        try {
+          const runner = new PluginRunner("dummy-plugin", "../dummy/index.ts");
+          
+          await runner.installDependencies();
+          
+          const result = await runner.getHomePage("dummyProvider", 1);
+          
+          setPluginData(result);
+        } catch (err) {
+          console.error("plugin failed to execute", err);
+          setPluginError(String(err));
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    }
+    loadData();
+  }, [activeProvider]);
 
   const handleMovieClick = () => {
     navigate("/movie/1");
@@ -71,13 +106,50 @@ export function HomePage() {
         </div>
       ) : (
         <>
-          <HeroCarousel items={heroMovies} />
-          
-          <div className="p-6 lg:p-10 -mt-10 relative z-40 space-y-12 pb-10">
-            <MovieList title={`${activeProvider} New Releases`} movies={newReleases} />
-            <MovieList title="Posters Only Mode" movies={popularWithoutText} />
-            <MovieList title="From the Community" movies={newReleases.slice().reverse()} />
-          </div>
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center h-screen text-white text-xl">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-4"></div>
+              Loading dummy plugin process...
+            </div>
+          ) : pluginError ? (
+            <div className="flex flex-col items-center justify-center h-screen px-4 text-center">
+              <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-6 max-w-2xl">
+                <h3 className="text-xl font-bold text-red-400 mb-2">Plugin Execution Failed</h3>
+                <p className="text-gray-300 font-mono text-sm whitespace-pre-wrap text-left break-all">
+                  {pluginError}
+                </p>
+                <p className="mt-4 text-sm text-gray-400">
+                  Tip: Press F12 to open the Developer Tools console for more details.
+                </p>
+              </div>
+            </div>
+          ) : pluginData ? (
+            <div className="p-6 lg:p-10 relative z-40 space-y-12 pb-10 pt-24">
+              {pluginData.sections.map((section, idx) => (
+                <MovieList 
+                  key={idx} 
+                  title={section.title} 
+                  movies={section.items.map(item => ({
+                    title: item.title,
+                    posterUrl: item.posterUrl || "https://via.placeholder.com/600x900",
+                    year: item.year?.toString(),
+                    rating: item.quality,
+                    onClick: handleMovieClick
+                  }))} 
+                />
+              ))}
+            </div>
+          ) : (
+            <>
+              <HeroCarousel items={heroMovies} />
+              
+              <div className="p-6 lg:p-10 -mt-10 relative z-40 space-y-12 pb-10">
+                <MovieList title={`${activeProvider} New Releases`} movies={newReleases} />
+                <MovieList title="Posters Only Mode" movies={popularWithoutText} />
+                <MovieList title="From the Community" movies={newReleases.slice().reverse()} />
+              </div>
+            </>
+          )}
         </>
       )}
     </div>

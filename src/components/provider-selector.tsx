@@ -6,7 +6,7 @@ interface ProviderSelectorProps {
   onSelect: (provider: string) => void;
 }
 
-const AVAILABLE_PROVIDERS = ["None", "SuperStream", "SoraStream", "MegaCloud", "AniList"];
+const AVAILABLE_PROVIDERS = ["None", "SuperStream", "SoraStream", "MegaCloud", "AniList", "dummyProvider"];
 
 export function ProviderSelector({ selected, onSelect }: ProviderSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
