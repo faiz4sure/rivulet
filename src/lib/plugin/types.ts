@@ -12,6 +12,8 @@ export enum MediaType {
 export interface SearchResult {
   title: string;
   url: string;
+  apiName: string;
+  id?: number;
   posterUrl?: string;
   type?: MediaType;
   quality?: string;
@@ -40,6 +42,7 @@ export interface EpisodeDetail {
 export interface LoadResult {
   title: string;
   url: string;
+  apiName: string;
   posterUrl?: string;
   type?: MediaType;
   year?: number;
