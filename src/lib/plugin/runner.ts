@@ -4,11 +4,24 @@ import type { RivuletExtension } from "./types";
 export class PluginRunner {
   constructor(private pluginId: string, private scriptPath: string) {}
 
+  async installDependencies(): Promise<void> {
+    await spawn(`${this.pluginId}-install`, {
+      sidecar: "deno",
+      args: ["cache", "--node-modules-dir=auto", this.scriptPath]
+    });
+  }
+
   private async execute<T>(action: (api: RivuletExtension) => Promise<T>): Promise<T> {
     try {
       await spawn(this.pluginId, {
         sidecar: "deno",
-        args: ["run", "--allow-all", this.scriptPath]
+        args: [
+          "run", 
+          "--allow-net", 
+          "--allow-read=dummy/storage/", 
+          "--allow-write=dummy/storage/", 
+          this.scriptPath
+        ]
       });
 
       const { api, channel } = await createChannel<Record<string, never>, RivuletExtension>(this.pluginId);
@@ -23,19 +36,19 @@ export class PluginRunner {
     }
   }
 
-  getHomePage(page: number, request?: any) {
-    return this.execute(api => api.getHomePage(page, request));
+  getHomePage(provider: string, page: number, request?: any) {
+    return this.execute(api => api.getHomePage(provider, page, request));
   }
 
-  search(query: string, page?: number) {
-    return this.execute(api => api.search(query, page));
+  search(provider: string, query: string, page?: number) {
+    return this.execute(api => api.search(provider, query, page));
   }
 
-  load(url: string) {
-    return this.execute(api => api.load(url));
+  load(provider: string, url: string) {
+    return this.execute(api => api.load(provider, url));
   }
 
-  loadLinks(data: string) {
-    return this.execute(api => api.loadLinks(data));
+  loadLinks(provider: string, data: string) {
+    return this.execute(api => api.loadLinks(provider, data));
   }
 }

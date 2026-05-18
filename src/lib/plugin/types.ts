@@ -73,8 +73,8 @@ export interface StreamResult {
 }
 
 export interface RivuletExtension {
-  getHomePage(page: number, request?: any): Promise<HomePageResult>;
-  search(query: string, page?: number): Promise<SearchResult[]>;
-  load(url: string): Promise<LoadResult>;
-  loadLinks(data: string): Promise<StreamResult>;
+  getHomePage(provider: string, page: number, request?: any): Promise<HomePageResult>;
+  search(provider: string, query: string, page?: number): Promise<SearchResult[]>;
+  load(provider: string, url: string): Promise<LoadResult>;
+  loadLinks(provider: string, data: string): Promise<StreamResult>;
 }
