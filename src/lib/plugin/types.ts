@@ -31,29 +31,55 @@ export interface HomePageResult {
   hasNextPage?: boolean;
 }
 
+export interface ActorData {
+  name: string;
+  roleString?: string;
+  mainActor?: boolean;
+  image?: string;
+}
+
+export interface TrailerData {
+  url: string;
+  raw: boolean;
+  headers?: Record<string, string>;
+}
+
 export interface EpisodeDetail {
   title?: string;
   url: string;
   number?: number;
   season?: number;
+  seasonIndex?: number;
   posterUrl?: string;
   description?: string;
+  score?: number;
+  isFiller?: boolean;
+  airDate?: number;
+  runTime?: number;
 }
 
 export interface LoadResult {
   title: string;
   url: string;
+  uniqueUrl?: string;
   apiName: string;
+  type?: MediaType;
   posterUrl?: string;
   backgroundPosterUrl?: string;
   logoUrl?: string;
-  type?: MediaType;
+  posterHeaders?: Record<string, string>;
   year?: number;
   plot?: string;
   genres?: string[];
   score?: number;
-  episodes?: EpisodeDetail[];
+  duration?: number;
+  contentRating?: string;
+  comingSoon?: boolean;
+  actors?: ActorData[];
+  trailers?: TrailerData[];
   recommendations?: SearchResult[];
+  syncData?: Record<string, string>;
+  episodes?: EpisodeDetail[];
 }
 
 export interface StreamLink {
