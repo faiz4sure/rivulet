@@ -7,6 +7,8 @@ export class PluginRunner {
   private api: RivuletPlugin | null = null;
   private channel: any = null;
   private initPromise: Promise<RivuletPlugin> | null = null;
+  private idleTimeout: ReturnType<typeof setTimeout> | null = null;
+  private activeTasks = 0;
 
   constructor(private pluginId: string, private scriptPath: string) {
     const existing = PluginRunner.instances.get(pluginId);
@@ -62,7 +64,46 @@ export class PluginRunner {
 
   private async execute<T>(action: (api: RivuletPlugin) => Promise<T>): Promise<T> {
     const api = await this.getApi();
-    return action(api);
+    
+    this.activeTasks++;
+    if (this.idleTimeout) {
+      clearTimeout(this.idleTimeout);
+      this.idleTimeout = null;
+    }
+    
+    try {
+      const result = await action(api);
+      return result;
+    } catch (err) {
+      console.error(`[PluginRunner] RPC Execution failed for ${this.pluginId}, forcing cleanup.`, err);
+      await this.destroy();
+      throw err;
+    } finally {
+      this.activeTasks--;
+      if (this.activeTasks < 0) this.activeTasks = 0;
+      
+      if (this.activeTasks === 0 && this.api) {
+        this.idleTimeout = setTimeout(() => {
+          console.log(`[PluginRunner] Idle timeout reached for ${this.pluginId}, killing process safely.`);
+          this.destroy();
+        }, 2000);
+      }
+    }
+  }
+
+  async destroy() {
+    if (this.idleTimeout) {
+      clearTimeout(this.idleTimeout);
+      this.idleTimeout = null;
+    }
+    this.activeTasks = 0;
+    if (this.channel) {
+      this.channel.destroy();
+      this.channel = null;
+    }
+    this.api = null;
+    this.initPromise = null;
+    await kill(this.pluginId).catch(() => {});
   }
 
   getHomePage(provider: string, page: number, request?: any) {
