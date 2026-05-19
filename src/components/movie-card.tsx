@@ -6,17 +6,18 @@ export interface MovieCardProps {
   year?: string;
   rating?: string;
   onClick?: () => void;
+  isHorizontal?: boolean;
 }
 
-export function MovieCard({ title, posterUrl, year, rating, onClick }: MovieCardProps) {
+export function MovieCard({ title, posterUrl, year, rating, onClick, isHorizontal }: MovieCardProps) {
   const hasTextContext = title || year;
 
   return (
     <div 
-      className="group relative flex w-48 shrink-0 cursor-pointer flex-col overflow-hidden rounded-xl bg-card transition-all hover:scale-[1.02] hover:bg-accent/10 hover:ring-1 hover:ring-primary/30"
+      className={`group relative flex shrink-0 cursor-pointer flex-col overflow-hidden rounded-xl bg-card transition-all hover:scale-[1.02] hover:bg-accent/10 hover:ring-1 hover:ring-primary/30 ${isHorizontal ? "w-72" : "w-48"}`}
       onClick={onClick}
     >
-      <div className="relative aspect-[2/3] w-full overflow-hidden bg-muted">
+      <div className={`relative w-full overflow-hidden bg-muted ${isHorizontal ? "aspect-video" : "aspect-[2/3]"}`}>
         {posterUrl ? (
           <img 
             src={posterUrl} 

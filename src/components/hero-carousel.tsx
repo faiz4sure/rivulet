@@ -44,7 +44,7 @@ export function HeroCarousel({ items, autoPlayInterval = 6000 }: HeroCarouselPro
           <img
             src={item.backdropUrl}
             alt={item.title}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-top"
           />
         </div>
       ))}

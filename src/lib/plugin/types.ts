@@ -23,6 +23,7 @@ export interface SearchResult {
 export interface HomePageSection {
   title: string;
   items: SearchResult[];
+  isHorizontalImages?: boolean;
 }
 
 export interface HomePageResult {
@@ -44,11 +45,13 @@ export interface LoadResult {
   url: string;
   apiName: string;
   posterUrl?: string;
+  backgroundPosterUrl?: string;
+  logoUrl?: string;
   type?: MediaType;
   year?: number;
   plot?: string;
   genres?: string[];
-  rating?: number;
+  score?: number;
   episodes?: EpisodeDetail[];
   recommendations?: SearchResult[];
 }
@@ -72,7 +75,7 @@ export interface StreamResult {
   subtitles?: Subtitle[];
 }
 
-export interface RivuletExtension {
+export interface RivuletPlugin {
   getHomePage(provider: string, page: number, request?: any): Promise<HomePageResult>;
   search(provider: string, query: string, page?: number): Promise<SearchResult[]>;
   load(provider: string, url: string): Promise<LoadResult>;

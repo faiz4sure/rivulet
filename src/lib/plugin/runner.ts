@@ -1,43 +1,68 @@
 import { spawn, createChannel, kill, onStdout, onStderr } from "tauri-plugin-js-api";
-import type { RivuletExtension } from "./types";
+import type { RivuletPlugin } from "./types";
 
 export class PluginRunner {
-  constructor(private pluginId: string, private scriptPath: string) {}
+  private static instances = new Map<string, PluginRunner>();
+  
+  private api: RivuletPlugin | null = null;
+  private channel: any = null;
+  private initPromise: Promise<RivuletPlugin> | null = null;
+
+  constructor(private pluginId: string, private scriptPath: string) {
+    const existing = PluginRunner.instances.get(pluginId);
+    if (existing) {
+      return existing;
+    }
+    PluginRunner.instances.set(pluginId, this);
+  }
 
   async installDependencies(): Promise<void> {
     await spawn(`${this.pluginId}-install`, {
       sidecar: "deno",
       args: ["cache", "--node-modules-dir=auto", this.scriptPath]
+    }).catch(err => {
+      if (!String(err).includes("process already exists")) throw err;
     });
   }
 
-  private async execute<T>(action: (api: RivuletExtension) => Promise<T>): Promise<T> {
-    try {
-      await spawn(this.pluginId, {
-        sidecar: "deno",
-        args: [
-          "run", 
-          "--node-modules-dir=auto",
-          "--allow-net", 
-          "--allow-read=dummy/storage/", 
-          "--allow-write=dummy/storage/", 
-          this.scriptPath
-        ]
-      });
+  private async getApi(): Promise<RivuletPlugin> {
+    if (this.api) return this.api;
+    if (this.initPromise) return this.initPromise;
+
+    this.initPromise = (async () => {
+      try {
+        await spawn(this.pluginId, {
+          sidecar: "deno",
+          args: [
+            "run", 
+            "--node-modules-dir=auto",
+            "--allow-net", 
+            "--allow-read=../dummy/storage", 
+            "--allow-write=../dummy/storage", 
+            this.scriptPath
+          ]
+        });
+      } catch (err) {
+        if (!String(err).includes("process already exists")) {
+          throw err;
+        }
+      }
 
       onStdout(this.pluginId, (line) => console.log(`[Deno: ${this.pluginId}] ${line}`));
       onStderr(this.pluginId, (line) => console.error(`[Deno ERROR: ${this.pluginId}] ${line}`));
 
-      const { api, channel } = await createChannel<Record<string, never>, RivuletExtension>(this.pluginId);
+      const { api, channel } = await createChannel<Record<string, never>, RivuletPlugin>(this.pluginId);
+      this.api = api;
+      this.channel = channel;
+      return api;
+    })();
 
-      const result = await action(api);
+    return this.initPromise;
+  }
 
-      channel.destroy();
-
-      return result;
-    } finally {
-      await kill(this.pluginId).catch(() => {});
-    }
+  private async execute<T>(action: (api: RivuletPlugin) => Promise<T>): Promise<T> {
+    const api = await this.getApi();
+    return action(api);
   }
 
   getHomePage(provider: string, page: number, request?: any) {

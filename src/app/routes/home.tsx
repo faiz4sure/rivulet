@@ -11,6 +11,7 @@ import type { HomePageResult } from "@/lib/plugin/types";
 export function HomePage() {
   const [activeProvider, setActiveProvider] = useState("None");
   const [pluginData, setPluginData] = useState<HomePageResult | null>(null);
+  const [heroItems, setHeroItems] = useState<HeroCarouselItem[]>([]);
   const [pluginError, setPluginError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -28,12 +29,29 @@ export function HomePage() {
         setPluginData(null);
         try {
           const runner = new PluginRunner("dummy-plugin", "../dummy/index.ts");
-          
           await runner.installDependencies();
           
           const result = await runner.getHomePage("dummyProvider", 1);
-          
           setPluginData(result);
+          if (result.sections.length > 0 && result.sections[0].items.length > 0) {
+            const shuffled = [...result.sections[0].items].sort(() => 0.5 - Math.random());
+            const topItems = shuffled.slice(0, 3);
+            const loadedHeroes = await Promise.all(
+              topItems.map(async (item) => {
+                const details = await runner.load("dummyProvider", item.url);
+                return {
+                  id: details.url,
+                  title: details.title,
+                  backdropUrl: details.backgroundPosterUrl || details.posterUrl || "https://placehold.co/1280x720/png",
+                  logoUrl: details.logoUrl, 
+                  tags: [details.year?.toString() || "2024", `Score: ${details.score || "N/A"}`],
+                  description: details.plot
+                } as HeroCarouselItem;
+              })
+            );
+            setHeroItems(loadedHeroes);
+          }
+          
         } catch (err) {
           console.error("plugin failed to execute", err);
           setPluginError(String(err));
@@ -125,16 +143,22 @@ export function HomePage() {
             </div>
           ) : pluginData ? (
             <div className="p-6 lg:p-10 relative z-40 space-y-12 pb-10 pt-24">
+              {heroItems.length > 0 && (
+                <div className="-mx-6 lg:-mx-10 -mt-24 mb-10">
+                  <HeroCarousel items={heroItems} />
+                </div>
+              )}
               {pluginData.sections.map((section, idx) => (
                 <MovieList 
                   key={idx} 
                   title={section.title} 
                   movies={section.items.map(item => ({
                     title: item.title,
-                    posterUrl: item.posterUrl || "https://via.placeholder.com/600x900",
+                    posterUrl: item.posterUrl || (section.isHorizontalImages ? "https://placehold.co/900x600/png" : "https://placehold.co/600x900/png"),
                     year: item.year?.toString(),
                     rating: item.quality,
-                    onClick: handleMovieClick
+                    onClick: handleMovieClick,
+                    isHorizontal: section.isHorizontalImages
                   }))} 
                 />
               ))}
