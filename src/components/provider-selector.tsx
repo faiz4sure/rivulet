@@ -30,9 +30,9 @@ export function ProviderSelector({ selected, onSelect }: ProviderSelectorProps) 
         aria-haspopup="listbox"
         aria-expanded={isOpen}
       >
-        <Server className="w-4 h-4 text-gray-300" />
+        <Server className="w-4 h-4 text-neutral-300" />
         <span className="text-sm">{selected}</span>
-        <ChevronDown className={`w-4 h-4 text-gray-300 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
+        <ChevronDown className={`w-4 h-4 text-neutral-300 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
       </button>
 
       {isOpen && (
@@ -50,7 +50,7 @@ export function ProviderSelector({ selected, onSelect }: ProviderSelectorProps) 
               className={`w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center justify-between ${
                 selected === provider 
                   ? "bg-primary/20 text-white font-semibold" 
-                  : "text-gray-300 hover:bg-accent/50 hover:text-white"
+                  : "text-neutral-300 hover:bg-accent/50 hover:text-white"
               }`}
               role="option"
               aria-selected={selected === provider}

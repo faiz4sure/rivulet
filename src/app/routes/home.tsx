@@ -31,6 +31,9 @@ export function HomePage() {
         await runner.installDependencies();
         
         const result = await runner.getHomePage(activeProvider, 1);
+        if ((result as any).error) {
+            throw new Error((result as any).message || "Unknown plugin error");
+        }
         setPluginData(result);
         if (result.sections && result.sections.length > 0 && result.sections[0].items.length > 0) {
           const shuffled = [...result.sections[0].items].sort(() => 0.5 - Math.random());

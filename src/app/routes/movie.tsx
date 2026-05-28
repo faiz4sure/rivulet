@@ -1,9 +1,53 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router";
-import { Play, Plus, ArrowLeft, Star, Film, MonitorPlay } from "lucide-react";
+import { Play, Plus, ArrowLeft, Star, Film, MonitorPlay, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PluginRunner } from "@/lib/plugin/runner";
 import type { LoadResult } from "@/lib/plugin/types";
+import { CastList } from "@/components/cast-list";
+import { EpisodeCard } from "@/components/episode-card";
+
+function CustomSelect({ value, onChange, options }: { 
+  value: number, 
+  onChange: (val: number) => void, 
+  options: { label: string, value: number }[]
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const selectedLabel = options.find(o => o.value === value)?.label || "";
+
+  return (
+    <div className="relative">
+      <div 
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-2 bg-black/40 hover:bg-black/60 border border-white/10 text-sm rounded-xl px-4 py-2 text-white outline-none focus:ring-1 focus:ring-white/30 cursor-pointer shadow-lg backdrop-blur-md transition-all font-medium min-w-[140px] justify-between"
+      >
+        <span>{selectedLabel}</span>
+        <ChevronDown className="w-4 h-4 text-neutral-400 pointer-events-none" />
+      </div>
+      {isOpen && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
+          <div className="absolute top-full right-0 mt-2 min-w-[160px] bg-neutral-900 border border-neutral-700 rounded-xl shadow-2xl z-50 overflow-hidden backdrop-blur-xl">
+            <div className="max-h-64 overflow-y-auto scrollbar-hide">
+              {options.map((opt) => (
+                <div 
+                  key={opt.value}
+                  onClick={() => {
+                    onChange(opt.value);
+                    setIsOpen(false);
+                  }}
+                  className={`px-4 py-2.5 text-sm cursor-pointer transition-colors ${opt.value === value ? "bg-white/20 text-white font-medium" : "text-neutral-300 hover:bg-white/10 hover:text-white"}`}
+                >
+                  {opt.label}
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 export function MoviePage() {
   const navigate = useNavigate();
@@ -113,34 +157,22 @@ export function MoviePage() {
 
       <div className="relative w-full h-[50vh] md:h-[60vh] overflow-hidden bg-muted">
         {data.backgroundPosterUrl ? (
-          <>
-            <img 
-              src={data.backgroundPosterUrl} 
-              alt=""
-              className="absolute inset-0 w-full h-full object-cover opacity-40 blur-3xl scale-125"
-              aria-hidden="true"
-            />
-            <div className="absolute inset-0 flex justify-end">
-              <div className="relative w-full h-full lg:w-[80%]">
-                <img 
-                  src={data.backgroundPosterUrl} 
-                  alt={data.title}
-                  className="w-full h-full object-contain object-right object-top"
-                />
-                <div className="absolute inset-y-0 left-0 w-2/3 bg-gradient-to-r from-background via-background/90 to-transparent" />
-              </div>
-            </div>
-          </>
+          <img 
+            src={data.backgroundPosterUrl} 
+            alt={data.title}
+            className="w-full h-full object-cover object-top"
+          />
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-black" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 z-10 bg-gradient-to-t from-background via-background/40 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 z-10 bg-gradient-to-r from-background/80 via-transparent to-transparent pointer-events-none" />
       </div>
 
 
-      <div className="relative z-10 max-w-6xl mx-auto px-6 lg:px-10 -mt-32 md:-mt-48">
-        <div className="flex flex-col md:flex-row gap-8">
-          <div className="flex-shrink-0 mx-auto md:mx-0 w-48 md:w-64 rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10 h-fit">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 md:px-6 lg:px-10 -mt-20 md:-mt-40">
+        <div className="flex flex-col md:flex-row gap-8 bg-black/60 backdrop-blur-xl p-6 md:p-8 rounded-3xl border border-white/10 shadow-2xl">
+          <div className="flex-shrink-0 mx-auto md:mx-0 w-48 md:w-64 rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/20 h-fit">
             <img 
               src={data.posterUrl || "https://placehold.co/600x900/png"} 
               alt={data.title}
@@ -155,22 +187,22 @@ export function MoviePage() {
               <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight">{data.title}</h1>
             )}
             
-            <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-gray-300">
+            <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-neutral-300">
               {data.score !== undefined && (
-                <div className="flex items-center gap-1 text-amber-500">
+                <div className="flex items-center gap-1 text-neutral-300">
                   <Star className="w-4 h-4 fill-current" />
                   <span className="text-white">{data.score.toFixed(1)}</span>
                 </div>
               )}
               {data.year && <span>{data.year}</span>}
               {data.contentRating && (
-                <span className="border border-gray-600 px-1.5 py-0.5 rounded text-xs text-gray-400">
+                <span className="border border-neutral-600 px-1.5 py-0.5 rounded text-xs text-neutral-400">
                   {data.contentRating}
                 </span>
               )}
-              {data.duration && <span>{data.duration} min</span>}
+              {data.type === "Movie" && data.duration && <span>{data.duration}</span>}
               {data.type && (
-                <span className="flex items-center gap-1 text-gray-400">
+                <span className="flex items-center gap-1 text-neutral-400">
                   {data.type === "Movie" ? <Film className="w-4 h-4" /> : <MonitorPlay className="w-4 h-4" />}
                   {data.type}
                 </span>
@@ -188,7 +220,7 @@ export function MoviePage() {
             )}
 
             {data.plot && (
-              <p className="text-gray-300 md:text-lg max-w-3xl leading-relaxed mt-4">
+              <p className="text-neutral-300 md:text-lg max-w-3xl leading-relaxed mt-4">
                 {data.plot}
               </p>
             )}
@@ -207,30 +239,7 @@ export function MoviePage() {
         </div>
 
         <div className="mt-16 space-y-16">
-          {data.actors && data.actors.length > 0 && (
-            <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-white">Cast</h3>
-              <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
-                {data.actors.map((actor, idx) => (
-                  <div key={idx} className="flex flex-col items-center flex-shrink-0 w-24">
-                    <div className="w-20 h-20 rounded-full bg-gray-800 border border-gray-700 overflow-hidden mb-3 shadow-lg">
-                      {actor.image ? (
-                        <img src={actor.image} alt={actor.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-500 text-lg text-center bg-gray-900 font-semibold uppercase">
-                          {actor.name.substring(0, 2)}
-                        </div>
-                      )}
-                    </div>
-                    <span className="text-sm font-medium text-gray-200 text-center line-clamp-2">{actor.name}</span>
-                    {actor.roleString && (
-                      <span className="text-xs text-gray-500 text-center line-clamp-1 mt-1">{actor.roleString}</span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          <CastList actors={data.actors || []} />
 
           {data.type === "TvSeries" && displayedEpisodes.length > 0 && (
             <div className="space-y-6">
@@ -244,64 +253,36 @@ export function MoviePage() {
                 
                 <div className="flex items-center gap-3">
                   {episodeRanges.length > 1 && (
-                    <select 
-                      className="bg-gray-900 border border-gray-700 text-sm rounded-lg px-4 py-2 text-white outline-none focus:ring-1 focus:ring-white/30 cursor-pointer shadow-lg"
+                    <CustomSelect
                       value={selectedRange}
-                      onChange={(e) => setSelectedRange(Number(e.target.value))}
-                    >
-                      {episodeRanges.map(range => (
-                        <option key={range.index} value={range.index}>
-                          Episodes {range.start}-{range.end}
-                        </option>
-                      ))}
-                    </select>
+                      onChange={setSelectedRange}
+                      options={episodeRanges.map(range => ({
+                        label: `Episodes ${range.start}-${range.end}`,
+                        value: range.index
+                      }))}
+                    />
                   )}
                   
                   {seasons.length > 1 && (
-                    <select 
-                      className="bg-gray-900 border border-gray-700 text-sm rounded-lg px-4 py-2 text-white outline-none focus:ring-1 focus:ring-white/30 cursor-pointer shadow-lg"
+                    <CustomSelect
                       value={selectedSeason || seasons[0]}
-                      onChange={(e) => setSelectedSeason(Number(e.target.value))}
-                    >
-                      {seasons.map(s => (
-                        <option key={s} value={s}>Season {s}</option>
-                      ))}
-                    </select>
+                      onChange={setSelectedSeason}
+                      options={seasons.map(s => ({
+                        label: `Season ${s}`,
+                        value: s
+                      }))}
+                    />
                   )}
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {displayedEpisodes.map((ep, idx) => (
-                  <div 
+                  <EpisodeCard 
                     key={idx} 
-                    className="group flex gap-4 bg-gray-900/40 hover:bg-gray-800 p-3 rounded-xl border border-gray-800/50 cursor-pointer transition-all hover:shadow-xl hover:border-gray-700"
-                  >
-                    <div className="relative w-40 h-24 rounded-lg overflow-hidden bg-gray-900 flex-shrink-0">
-                      <img 
-                        src={ep.posterUrl || data.backgroundPosterUrl || data.posterUrl || "https://placehold.co/1280x720/png"} 
-                        alt={ep.title || `Episode ${ep.number}`}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                      />
-                      <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-300" />
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <div className="bg-black/60 rounded-full p-2.5 backdrop-blur-md">
-                          <Play className="w-5 h-5 text-white fill-current" />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex flex-col justify-center min-w-0 flex-1">
-                      <h4 className="text-sm font-semibold text-gray-200 truncate">
-                        {ep.number ? `${ep.number}. ` : ""}{ep.title || `Episode ${ep.number}`}
-                      </h4>
-                      {ep.runTime && (
-                        <span className="text-xs font-medium text-gray-500 mt-1">{ep.runTime} min</span>
-                      )}
-                      {ep.description && (
-                        <p className="text-xs text-gray-400 mt-1.5 line-clamp-2 leading-relaxed">{ep.description}</p>
-                      )}
-                    </div>
-                  </div>
+                    episode={ep} 
+                    fallbackPosterUrl={data.backgroundPosterUrl || data.posterUrl}
+                  />
                 ))}
               </div>
             </div>

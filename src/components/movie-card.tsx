@@ -14,7 +14,7 @@ export function MovieCard({ title, posterUrl, year, rating, onClick, isHorizonta
 
   return (
     <div 
-      className={`group relative flex shrink-0 cursor-pointer flex-col overflow-hidden rounded-xl bg-card transition-all hover:scale-[1.02] hover:bg-accent/10 hover:ring-1 hover:ring-primary/30 ${isHorizontal ? "w-72" : "w-48"}`}
+      className={`group relative flex shrink-0 cursor-pointer flex-col overflow-hidden rounded-xl bg-card transition-all hover:bg-accent/10 hover:ring-1 hover:ring-primary/30 ${isHorizontal ? "w-72" : "w-48"}`}
       onClick={onClick}
     >
       <div className={`relative w-full overflow-hidden bg-muted ${isHorizontal ? "aspect-video" : "aspect-[2/3]"}`}>
@@ -22,7 +22,7 @@ export function MovieCard({ title, posterUrl, year, rating, onClick, isHorizonta
           <img 
             src={posterUrl} 
             alt={title || "Movie poster"} 
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" 
+            className="h-full w-full object-cover" 
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-secondary text-secondary-foreground text-sm">
@@ -32,7 +32,7 @@ export function MovieCard({ title, posterUrl, year, rating, onClick, isHorizonta
 
         {rating && (
           <div className="absolute right-2 top-2 flex items-center gap-1 rounded-md bg-black/60 px-2 py-1 text-xs font-semibold text-white backdrop-blur-md">
-            <Star className="h-3 w-3 text-amber-500" fill="currentColor" />
+            <Star className="h-3 w-3 text-gray-300" fill="currentColor" />
             <span>{rating}</span>
           </div>
         )}

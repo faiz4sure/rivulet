@@ -13,7 +13,7 @@ export function TopNav({ activeProvider, onProviderSelect }: TopNavProps) {
       <SearchBar />
       <ProviderSelector selected={activeProvider} onSelect={onProviderSelect} />
       <button 
-        className="flex items-center justify-center w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md border border-white/10 text-gray-300 hover:text-white transition-all shadow-lg focus:outline-none cursor-pointer"
+        className="flex items-center justify-center w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md border border-white/10 text-neutral-300 hover:text-white transition-all shadow-lg focus:outline-none cursor-pointer"
         aria-label="Settings"
       >
         <Settings className="w-4 h-4" />
