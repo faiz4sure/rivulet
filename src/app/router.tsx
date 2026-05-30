@@ -11,6 +11,10 @@ const createAppRouter = () =>
       lazy: () => import("@/app/routes/movie"),
     },
     {
+      path: "/search",
+      lazy: () => import("@/app/routes/search"),
+    },
+    {
       path: "*",
       lazy: () => import("@/app/routes/not-found"),
     },

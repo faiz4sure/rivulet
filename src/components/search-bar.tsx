@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { Search } from "lucide-react";
+import { useNavigate } from "react-router";
 
 export function SearchBar() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -45,6 +47,12 @@ export function SearchBar() {
         placeholder="Search... (/)"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && query.trim()) {
+            navigate(`/search?q=${encodeURIComponent(query.trim())}`);
+            setIsExpanded(false);
+          }
+        }}
         onBlur={() => {
           if (!query) setIsExpanded(false);
         }}
