@@ -226,7 +226,16 @@ export function MoviePage() {
             )}
 
             <div className="flex items-center gap-4 mt-8">
-              <Button size="lg" className="bg-white text-black hover:bg-gray-200 font-bold px-8 gap-2 rounded-full h-12 text-base">
+              <Button 
+                onClick={() => {
+                  const playUrl = data.type === "TvSeries" && data.episodes?.length ? data.episodes[0].url : url;
+                  if (playUrl) {
+                    navigate(`/player?provider=${apiName}&url=${encodeURIComponent(playUrl)}`);
+                  }
+                }}
+                size="lg" 
+                className="bg-white text-black hover:bg-gray-200 font-bold px-8 gap-2 rounded-full h-12 text-base"
+              >
                 <Play className="w-5 h-5 fill-current" />
                 Play First
               </Button>
@@ -282,6 +291,7 @@ export function MoviePage() {
                     key={idx} 
                     episode={ep} 
                     fallbackPosterUrl={data.backgroundPosterUrl || data.posterUrl}
+                    onClick={() => navigate(`/player?provider=${apiName}&url=${encodeURIComponent(ep.url)}`)}
                   />
                 ))}
               </div>
