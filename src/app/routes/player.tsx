@@ -4,10 +4,11 @@ import { TopNav } from "@/components/top-nav";
 import { PluginRunner } from "@/lib/plugin/runner";
 import type { StreamResult, StreamLink } from "@/lib/plugin/types";
 import { buildProxyUrl } from "@/lib/stream";
+import Hls from "hls.js";
 
 import '@vidstack/react/player/styles/default/theme.css';
 import '@vidstack/react/player/styles/default/layouts/video.css';
-import { MediaPlayer, MediaProvider } from '@vidstack/react';
+import { MediaPlayer, MediaProvider, isHLSProvider, type MediaProviderAdapter } from '@vidstack/react';
 import { defaultLayoutIcons, DefaultVideoLayout } from '@vidstack/react/player/layouts/default';
 import { Loader2 } from "lucide-react";
 
@@ -34,13 +35,14 @@ export function PlayerPage() {
         setLoading(true);
         const runner = new PluginRunner("dummy-plugin", "../dummy/index.ts");
         const result = await runner.loadLinks(provider, url);
+        if (result && (result as any).error) {
+          throw new Error((result as any).message || "Failed to extract video link");
+        }
+        
         setStreamData(result);
         
-        if (result.streams && result.streams.length > 0) {
-          const highestQuality = result.streams.sort((a: StreamLink, b: StreamLink) => {
-            return (b.quality || 0) - (a.quality || 0);
-          })[0];
-          setActiveStream(highestQuality);
+        if (result?.streams && result.streams.length > 0) {
+          setActiveStream(result.streams[0]);
         } else {
           setError("No valid streams found");
         }
@@ -53,6 +55,21 @@ export function PlayerPage() {
 
     fetchStream();
   }, [provider, url]);
+
+  function onProviderChange(provider: MediaProviderAdapter | null) {
+    if (isHLSProvider(provider)) {
+      provider.library = Hls;
+      provider.config = {
+        maxMaxBufferLength: 10,
+        maxBufferSize: 10 * 1024 * 1024,
+        capLevelToPlayerSize: true,
+        maxBufferLength: 5,
+        backBufferLength: 0,
+        enableWorker: true,
+        lowLatencyMode: false,
+      };
+    }
+  }
 
   return (
     <div className="min-h-screen bg-black text-neutral-200 font-sans flex flex-col">
@@ -77,20 +94,25 @@ export function PlayerPage() {
               <p>{error}</p>
             </div>
           ) : activeStream ? (
-            <MediaPlayer
-              src={buildProxyUrl(activeStream.url, activeStream.headers)}
-              crossOrigin
-              className="w-full h-full"
-            >
+              <MediaPlayer
+                src={{ 
+                  src: buildProxyUrl(activeStream.url, activeStream.headers), 
+                  type: activeStream.isM3u8 ? 'application/x-mpegurl' : 'video/mp4' 
+                }}
+                crossOrigin
+                autoPlay
+                className="w-full h-full"
+                onProviderChange={onProviderChange}
+              >
               <MediaProvider />
               <DefaultVideoLayout icons={defaultLayoutIcons} />
             </MediaPlayer>
           ) : null}
         </div>
         
-        {streamData && streamData.streams.length > 1 && (
+        {streamData && streamData.streams && streamData.streams.length > 1 && (
           <div className="mt-8">
-            <h3 className="text-lg font-bold text-white mb-4">Available Qualities</h3>
+            <h3 className="text-lg font-bold text-white mb-4">Sources</h3>
             <div className="flex flex-wrap gap-2">
               {streamData.streams.map((stream, idx) => (
                 <button
@@ -102,8 +124,8 @@ export function PlayerPage() {
                       : "bg-neutral-800 text-neutral-300 hover:bg-neutral-700 hover:text-white border border-neutral-700"
                   }`}
                 >
-                  {stream.quality ? `${stream.quality}p` : stream.title || 'Auto'}
-                  {stream.isM3u8 && ' (HLS)'}
+                  {stream.title || `Server ${idx + 1}`}
+                  {stream.quality ? ` (${stream.quality}p)` : ''}
                 </button>
               ))}
             </div>
