@@ -72,66 +72,62 @@ export function PlayerPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-neutral-200 font-sans flex flex-col">
-      <TopNav activeProvider={provider || "movieboxProvider"} onProviderSelect={() => {}} />
-      <div className="flex-1 flex flex-col w-full max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-8">
-        <button 
-          onClick={() => navigate(-1)}
-          className="self-start mb-6 text-sm text-neutral-400 hover:text-white transition-colors flex items-center gap-2"
-        >
-          &larr; Back
-        </button>
-
-        <div className="w-full aspect-video bg-neutral-900 rounded-xl overflow-hidden border border-neutral-800 relative flex items-center justify-center">
-          {loading ? (
-            <div className="flex flex-col items-center text-neutral-400 gap-4">
-              <Loader2 className="w-8 h-8 animate-spin" />
-              <p>Extracting stream sources...</p>
-            </div>
-          ) : error ? (
-            <div className="text-red-400 text-center max-w-md px-4">
-              <h3 className="text-xl font-bold mb-2 text-white">Playback Error</h3>
-              <p>{error}</p>
-            </div>
-          ) : activeStream ? (
-              <MediaPlayer
-                src={{ 
-                  src: buildProxyUrl(activeStream.url, activeStream.headers), 
-                  type: activeStream.isM3u8 ? 'application/x-mpegurl' : 'video/mp4' 
-                }}
-                crossOrigin
-                autoPlay
-                className="w-full h-full"
-                onProviderChange={onProviderChange}
-              >
-              <MediaProvider />
-              <DefaultVideoLayout icons={defaultLayoutIcons} />
-            </MediaPlayer>
-          ) : null}
-        </div>
-        
-        {streamData && streamData.streams && streamData.streams.length > 1 && (
-          <div className="mt-8">
-            <h3 className="text-lg font-bold text-white mb-4">Sources</h3>
-            <div className="flex flex-wrap gap-2">
-              {streamData.streams.map((stream, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setActiveStream(stream)}
-                  className={`px-4 py-2 rounded font-medium text-sm transition-colors ${
-                    activeStream === stream 
-                      ? "bg-white text-black" 
-                      : "bg-neutral-800 text-neutral-300 hover:bg-neutral-700 hover:text-white border border-neutral-700"
-                  }`}
-                >
-                  {stream.title || `Server ${idx + 1}`}
-                  {stream.quality ? ` (${stream.quality}p)` : ''}
-                </button>
-              ))}
-            </div>
+    <div className="w-screen h-screen bg-black text-neutral-200 font-sans overflow-hidden flex flex-col relative">
+      <button 
+        onClick={() => navigate(-1)}
+        className="absolute top-6 left-6 z-50 bg-black/50 hover:bg-black/80 backdrop-blur-md px-4 py-2 rounded-full text-sm font-medium text-white transition-all flex items-center gap-2 border border-white/10 shadow-lg"
+      >
+        &larr; Back
+      </button>
+      <div className="flex-1 w-full h-full relative flex items-center justify-center bg-black">
+        {loading ? (
+          <div className="flex flex-col items-center text-neutral-400 gap-4">
+            <Loader2 className="w-8 h-8 animate-spin" />
+            <p>Extracting stream sources...</p>
           </div>
-        )}
+        ) : error ? (
+          <div className="text-red-400 text-center max-w-md px-4">
+            <h3 className="text-xl font-bold mb-2 text-white">Playback Error</h3>
+            <p>{error}</p>
+          </div>
+        ) : activeStream ? (
+          <MediaPlayer
+            src={{ 
+              src: buildProxyUrl(activeStream.url, activeStream.headers), 
+              type: activeStream.isM3u8 ? 'application/x-mpegurl' : 'video/mp4' 
+            }}
+            crossOrigin
+            autoPlay
+            className="w-full h-full"
+            onProviderChange={onProviderChange}
+          >
+            <MediaProvider />
+            <DefaultVideoLayout icons={defaultLayoutIcons} />
+          </MediaPlayer>
+        ) : null}
       </div>
+      {streamData && streamData.streams && streamData.streams.length > 1 && (
+        <div className="absolute top-6 right-6 z-50 flex flex-col items-end gap-2 group">
+          <div className="text-xs font-semibold uppercase tracking-wider text-white/50 mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            Sources
+          </div>
+          <div className="flex gap-2 flex-wrap justify-end max-w-sm">
+            {streamData.streams.map((stream, idx) => (
+              <button
+                key={idx}
+                onClick={() => setActiveStream(stream)}
+                className={`px-3 py-1.5 rounded-full font-medium text-xs transition-all backdrop-blur-md shadow-lg border ${
+                  activeStream === stream 
+                    ? "bg-white text-black border-white" 
+                    : "bg-black/50 text-white/80 hover:bg-white/20 border-white/10"
+                }`}
+              >
+                {stream.title || `Server ${idx + 1}`}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
