@@ -2403,6 +2403,132 @@
           "markdownDescription": "Denies the unminimize command without any pre-configured scope."
         },
         {
+          "description": "Default permissions for the plugin\n#### This default permission set includes:\n\n- `allow-spawn`\n- `allow-kill`\n- `allow-kill-all`\n- `allow-restart`\n- `allow-list-processes`\n- `allow-get-status`\n- `allow-write-stdin`\n- `allow-detect-runtimes`\n- `allow-set-runtime-path`\n- `allow-get-runtime-paths`",
+          "type": "string",
+          "const": "js:default",
+          "markdownDescription": "Default permissions for the plugin\n#### This default permission set includes:\n\n- `allow-spawn`\n- `allow-kill`\n- `allow-kill-all`\n- `allow-restart`\n- `allow-list-processes`\n- `allow-get-status`\n- `allow-write-stdin`\n- `allow-detect-runtimes`\n- `allow-set-runtime-path`\n- `allow-get-runtime-paths`"
+        },
+        {
+          "description": "Enables the detect_runtimes command without any pre-configured scope.",
+          "type": "string",
+          "const": "js:allow-detect-runtimes",
+          "markdownDescription": "Enables the detect_runtimes command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the get_runtime_paths command without any pre-configured scope.",
+          "type": "string",
+          "const": "js:allow-get-runtime-paths",
+          "markdownDescription": "Enables the get_runtime_paths command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the get_status command without any pre-configured scope.",
+          "type": "string",
+          "const": "js:allow-get-status",
+          "markdownDescription": "Enables the get_status command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the kill command without any pre-configured scope.",
+          "type": "string",
+          "const": "js:allow-kill",
+          "markdownDescription": "Enables the kill command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the kill_all command without any pre-configured scope.",
+          "type": "string",
+          "const": "js:allow-kill-all",
+          "markdownDescription": "Enables the kill_all command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the list_processes command without any pre-configured scope.",
+          "type": "string",
+          "const": "js:allow-list-processes",
+          "markdownDescription": "Enables the list_processes command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the restart command without any pre-configured scope.",
+          "type": "string",
+          "const": "js:allow-restart",
+          "markdownDescription": "Enables the restart command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the set_runtime_path command without any pre-configured scope.",
+          "type": "string",
+          "const": "js:allow-set-runtime-path",
+          "markdownDescription": "Enables the set_runtime_path command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the spawn command without any pre-configured scope.",
+          "type": "string",
+          "const": "js:allow-spawn",
+          "markdownDescription": "Enables the spawn command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the write_stdin command without any pre-configured scope.",
+          "type": "string",
+          "const": "js:allow-write-stdin",
+          "markdownDescription": "Enables the write_stdin command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the detect_runtimes command without any pre-configured scope.",
+          "type": "string",
+          "const": "js:deny-detect-runtimes",
+          "markdownDescription": "Denies the detect_runtimes command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_runtime_paths command without any pre-configured scope.",
+          "type": "string",
+          "const": "js:deny-get-runtime-paths",
+          "markdownDescription": "Denies the get_runtime_paths command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_status command without any pre-configured scope.",
+          "type": "string",
+          "const": "js:deny-get-status",
+          "markdownDescription": "Denies the get_status command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the kill command without any pre-configured scope.",
+          "type": "string",
+          "const": "js:deny-kill",
+          "markdownDescription": "Denies the kill command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the kill_all command without any pre-configured scope.",
+          "type": "string",
+          "const": "js:deny-kill-all",
+          "markdownDescription": "Denies the kill_all command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the list_processes command without any pre-configured scope.",
+          "type": "string",
+          "const": "js:deny-list-processes",
+          "markdownDescription": "Denies the list_processes command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the restart command without any pre-configured scope.",
+          "type": "string",
+          "const": "js:deny-restart",
+          "markdownDescription": "Denies the restart command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the set_runtime_path command without any pre-configured scope.",
+          "type": "string",
+          "const": "js:deny-set-runtime-path",
+          "markdownDescription": "Denies the set_runtime_path command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the spawn command without any pre-configured scope.",
+          "type": "string",
+          "const": "js:deny-spawn",
+          "markdownDescription": "Denies the spawn command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the write_stdin command without any pre-configured scope.",
+          "type": "string",
+          "const": "js:deny-write-stdin",
+          "markdownDescription": "Denies the write_stdin command without any pre-configured scope."
+        },
+        {
           "description": "This permission set configures which\nprocess features are by default exposed.\n\n#### Granted Permissions\n\nThis enables to quit via `allow-exit` and restart via `allow-restart`\nthe application.\n\n#### This default permission set includes:\n\n- `allow-exit`\n- `allow-restart`",
           "type": "string",
           "const": "process:default",

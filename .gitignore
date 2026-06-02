@@ -2,3 +2,12 @@ node_modules/
 dist/
 package-lock.json
 example/
+*.png
+.vscode/
+tauri-plugin-js/
+extension1/
+extension2/
+src-tauri/bin/
+dummy/
+mydocs/
+player-docs/
