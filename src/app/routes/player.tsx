@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router";
-import { TopNav } from "@/components/top-nav";
 import { PluginRunner } from "@/lib/plugin/runner";
 import type { StreamResult, StreamLink } from "@/lib/plugin/types";
 import { buildProxyUrl } from "@/lib/stream";
 import Hls from "hls.js";
-
 import '@vidstack/react/player/styles/default/theme.css';
 import '@vidstack/react/player/styles/default/layouts/video.css';
 import { MediaPlayer, MediaProvider, isHLSProvider, type MediaProviderAdapter } from '@vidstack/react';
@@ -22,6 +20,8 @@ export function PlayerPage() {
   const [error, setError] = useState<string | null>(null);
   const [streamData, setStreamData] = useState<StreamResult | null>(null);
   const [activeStream, setActiveStream] = useState<StreamLink | null>(null);
+  const [streamIndex, setStreamIndex] = useState(0);
+  const [failedStreams, setFailedStreams] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     if (!provider || !url) {
@@ -42,6 +42,7 @@ export function PlayerPage() {
         setStreamData(result);
         
         if (result?.streams && result.streams.length > 0) {
+          setStreamIndex(0);
           setActiveStream(result.streams[0]);
         } else {
           setError("No valid streams found");
@@ -71,6 +72,40 @@ export function PlayerPage() {
     }
   }
 
+  function handlePlaybackError(e: any) {
+    console.error("Playback error encountered:", e);
+    setFailedStreams(prev => new Set(prev).add(streamIndex));
+
+    if (streamData?.streams && streamIndex < streamData.streams.length - 1) {
+      console.log(`Auto-falling back to stream ${streamIndex + 2}...`);
+      const nextIndex = streamIndex + 1;
+      setStreamIndex(nextIndex);
+      setActiveStream(streamData.streams[nextIndex]);
+    } else {
+      let errorReason = "Unknown error occurred.";
+      if (e?.detail?.code === 3 || e?.detail?.message?.toLowerCase().includes("decode")) {
+        errorReason = "Your hardware does not support this video format (e.g., H.265/HEVC).";
+      } else if (e?.detail?.code === 2 || e?.detail?.message?.toLowerCase().includes("network")) {
+        errorReason = "Network error or connection refused (e.g. 403 Forbidden / 404 Not Found).";
+      } else if (e?.detail?.message) {
+        errorReason = e.detail.message;
+      }
+      
+      setError(`All available streams failed to play. Reason for last failure: ${errorReason}`);
+    }
+  }
+
+  function getMimeType(url: string, isM3u8: boolean | undefined) {
+    const lowerUrl = url.toLowerCase();
+    if (isM3u8 || lowerUrl.includes('.m3u8')) return 'application/x-mpegurl';
+    if (lowerUrl.includes('.mpd')) return 'application/dash+xml';
+    if (lowerUrl.includes('.webm')) return 'video/webm';
+    if (lowerUrl.includes('.mkv')) return 'video/x-matroska';
+    if (lowerUrl.includes('.ogg')) return 'video/ogg';
+    if (lowerUrl.includes('.flv')) return 'video/x-flv';
+    return 'video/mp4';
+  }
+
   return (
     <div className="w-screen h-screen bg-black text-neutral-200 font-sans overflow-hidden flex flex-col relative">
       <button 
@@ -94,12 +129,13 @@ export function PlayerPage() {
           <MediaPlayer
             src={{ 
               src: buildProxyUrl(activeStream.url, activeStream.headers), 
-              type: activeStream.isM3u8 ? 'application/x-mpegurl' : 'video/mp4' 
+              type: getMimeType(activeStream.url, activeStream.isM3u8) as any
             }}
             crossOrigin
             autoPlay
             className="w-full h-full"
             onProviderChange={onProviderChange}
+            onError={handlePlaybackError}
           >
             <MediaProvider />
             <DefaultVideoLayout icons={defaultLayoutIcons} />
@@ -112,19 +148,28 @@ export function PlayerPage() {
             Sources
           </div>
           <div className="flex gap-2 flex-wrap justify-end max-w-sm">
-            {streamData.streams.map((stream, idx) => (
-              <button
-                key={idx}
-                onClick={() => setActiveStream(stream)}
-                className={`px-3 py-1.5 rounded-full font-medium text-xs transition-all backdrop-blur-md shadow-lg border ${
-                  activeStream === stream 
-                    ? "bg-white text-black border-white" 
-                    : "bg-black/50 text-white/80 hover:bg-white/20 border-white/10"
-                }`}
-              >
-                {stream.title || `Server ${idx + 1}`}
-              </button>
-            ))}
+            {streamData.streams.map((stream, idx) => {
+              const isFailed = failedStreams.has(idx);
+              const isActive = activeStream === stream;
+              
+              let buttonStyle = "bg-black/50 text-white/80 hover:bg-white/20 border-white/10";
+              if (isActive) buttonStyle = "bg-white text-black border-white";
+              else if (isFailed) buttonStyle = "bg-red-950/50 text-red-400 border-red-900/50 line-through opacity-70";
+
+              return (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    setStreamIndex(idx);
+                    setActiveStream(stream);
+                  }}
+                  className={`px-3 py-1.5 rounded-full font-medium text-xs transition-all backdrop-blur-md shadow-lg border flex items-center gap-1 ${buttonStyle}`}
+                >
+                  {isFailed && <span className="text-[10px]">⚠️</span>}
+                  {stream.title || `Server ${idx + 1}`}
+                </button>
+              );
+            })}
           </div>
         </div>
       )}

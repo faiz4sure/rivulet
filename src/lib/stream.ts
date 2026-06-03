@@ -1,12 +1,8 @@
 export function buildProxyUrl(url: string, headers?: Record<string, string>): string {
-  const encodedUrl = encodeURIComponent(url);
-  let proxyUrl = `stream://localhost/${encodedUrl}`;
-  if (headers && Object.keys(headers).length > 0) {
-    const queryParams = new URLSearchParams();
-    for (const [key, value] of Object.entries(headers)) {
-      queryParams.append(`h_${key}`, value);
-    }
-    proxyUrl += `?${queryParams.toString()}`;
-  }
-  return proxyUrl;
+  const headersObj = headers && Object.keys(headers).length > 0 ? headers : {};
+  const headersB64 = btoa(JSON.stringify(headersObj))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+  return `stream://localhost/${headersB64}/${url}`;
 }
