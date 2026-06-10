@@ -162,12 +162,6 @@ fn parse_request_uri(uri: &str) -> Option<(String, String, Vec<(String, String)>
     Some((final_url, b64_headers.to_string(), headers))
 }
 
-fn percent_decode(input: &str) -> String {
-    percent_encoding::percent_decode_str(input)
-        .decode_utf8_lossy()
-        .into_owned()
-}
-
 fn error_response(status: u16, body: &[u8]) -> HttpResponse<Vec<u8>> {
     HttpResponse::builder()
         .status(status)

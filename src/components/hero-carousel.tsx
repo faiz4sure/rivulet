@@ -8,14 +8,19 @@ export interface HeroCarouselItem {
   backdropUrl: string;
   tags?: string[];
   description?: string;
+  apiName?: string;
+  type?: string;
+  firstEpisodeUrl?: string;
 }
 
 interface HeroCarouselProps {
   items: HeroCarouselItem[];
   autoPlayInterval?: number;
+  onInfoClick?: (item: HeroCarouselItem) => void;
+  onPlayClick?: (item: HeroCarouselItem) => void;
 }
 
-export function HeroCarousel({ items, autoPlayInterval = 6000 }: HeroCarouselProps) {
+export function HeroCarousel({ items, autoPlayInterval = 6000, onInfoClick, onPlayClick }: HeroCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const goToNext = useCallback(() => {
@@ -78,12 +83,19 @@ export function HeroCarousel({ items, autoPlayInterval = 6000 }: HeroCarouselPro
               <span className="text-xs font-semibold uppercase tracking-wider">List</span>
             </button>
 
-            <Button size="lg" className="bg-white text-black hover:bg-gray-200 font-bold px-8 gap-2 rounded-full h-12 text-base">
+            <Button 
+              onClick={() => onPlayClick && onPlayClick(currentItem)}
+              size="lg" 
+              className="bg-white text-black hover:bg-gray-200 font-bold px-8 gap-2 rounded-full h-12 text-base cursor-pointer"
+            >
               <Play className="w-5 h-5 fill-current" />
               Play
             </Button>
 
-            <button className="flex flex-col items-center gap-1 text-gray-300 hover:text-white transition-colors">
+            <button 
+              onClick={() => onInfoClick && onInfoClick(currentItem)}
+              className="flex flex-col items-center gap-1 text-gray-300 hover:text-white transition-colors cursor-pointer"
+            >
               <Info className="w-6 h-6" />
               <span className="text-xs font-semibold uppercase tracking-wider">Info</span>
             </button>

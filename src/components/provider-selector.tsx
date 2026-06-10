@@ -1,18 +1,22 @@
 import { useState, useRef, useEffect } from "react";
 import { ChevronDown, Server } from "lucide-react";
+import { PluginRunner } from "@/lib/plugin/runner";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ProviderSelectorProps {
   selected: string;
   onSelect: (provider: string) => void;
 }
 
-const AVAILABLE_PROVIDERS = ["None", "SuperStream", "SoraStream", "MegaCloud", "AniList", "dummyProvider", "movieboxProvider"];
-
 export function ProviderSelector({ selected, onSelect }: ProviderSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [providers, setProviders] = useState<{id: string, name: string}[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const runner = new PluginRunner("dummy-plugin", "../dummy/index.ts");
+    runner.getProviders().then(setProviders).catch(console.error);
+
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
@@ -22,47 +26,70 @@ export function ProviderSelector({ selected, onSelect }: ProviderSelectorProps) 
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const selectedName = providers.find(p => p.id === selected)?.name || selected;
+
   return (
-    <div className="relative" ref={dropdownRef}>
-      <button
+    <motion.div 
+      className="relative" 
+      ref={dropdownRef}
+      onMouseEnter={() => setIsOpen(true)}
+      onMouseLeave={() => setIsOpen(false)}
+    >
+      <motion.button
+        whileHover={{ scale: 1.05, backgroundColor: "rgba(0,0,0,0.6)" }}
+        whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 bg-black/40 hover:bg-black/60 backdrop-blur-md border border-white/10 text-white px-4 h-10 rounded-full font-medium transition-all shadow-lg focus:outline-none"
+        className="flex items-center gap-2 bg-black/40 backdrop-blur-md border border-white/10 text-white px-4 h-10 rounded-full font-medium transition-colors shadow-lg focus:outline-none cursor-pointer"
         aria-haspopup="listbox"
         aria-expanded={isOpen}
       >
         <Server className="w-4 h-4 text-neutral-300" />
-        <span className="text-sm">{selected}</span>
-        <ChevronDown className={`w-4 h-4 text-neutral-300 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
-      </button>
-
-      {isOpen && (
-        <div 
-          className="absolute right-0 mt-2 w-48 bg-card/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl overflow-hidden py-1 origin-top-right animate-in fade-in zoom-in-95 duration-200"
-          role="listbox"
+        <span className="text-sm">{selectedName}</span>
+        <motion.div
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.3, ease: "easeInOut" }}
         >
-          {AVAILABLE_PROVIDERS.map((provider) => (
-            <button
-              key={provider}
-              onClick={() => {
-                onSelect(provider);
-                setIsOpen(false);
-              }}
-              className={`w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center justify-between ${
-                selected === provider 
-                  ? "bg-primary/20 text-white font-semibold" 
-                  : "text-neutral-300 hover:bg-accent/50 hover:text-white"
-              }`}
-              role="option"
-              aria-selected={selected === provider}
-            >
-              {provider}
-              {selected === provider && (
-                <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-              )}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
+          <ChevronDown className="w-4 h-4 text-neutral-300" />
+        </motion.div>
+      </motion.button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="absolute right-0 mt-3 w-48 bg-[#0a0a0a]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden py-1.5 origin-top-right z-50"
+            role="listbox"
+          >
+            {providers.map((provider) => (
+              <button
+                key={provider.id}
+                onClick={() => {
+                  onSelect(provider.id);
+                  setIsOpen(false);
+                }}
+                className={`relative w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center justify-between group ${
+                  selected === provider.id 
+                    ? "text-white font-medium" 
+                    : "text-neutral-400 hover:text-white hover:bg-white/5"
+                }`}
+                role="option"
+                aria-selected={selected === provider.id}
+              >
+                <span className="relative z-10">{provider.name}</span>
+                {selected === provider.id && (
+                  <motion.div 
+                    layoutId="activeProviderIndicator"
+                    className="w-1.5 h-1.5 rounded-full bg-primary relative z-10" 
+                  />
+                )}
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }

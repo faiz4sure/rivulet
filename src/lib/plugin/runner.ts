@@ -106,6 +106,10 @@ export class PluginRunner {
     await kill(this.pluginId).catch(() => {});
   }
 
+  getProviders() {
+    return this.execute(api => api.getProviders());
+  }
+
   getHomePage(provider: string, page: number, request?: any) {
     return this.execute(api => api.getHomePage(provider, page, request));
   }

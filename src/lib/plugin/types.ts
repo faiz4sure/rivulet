@@ -102,6 +102,7 @@ export interface StreamResult {
 }
 
 export interface RivuletPlugin {
+  getProviders(): Promise<{id: string, name: string}[]>;
   getHomePage(provider: string, page: number, request?: any): Promise<HomePageResult>;
   search(provider: string, query: string, page?: number): Promise<SearchResult[]>;
   load(provider: string, url: string): Promise<LoadResult>;
@@ -109,6 +110,8 @@ export interface RivuletPlugin {
 }
 
 export interface ProviderApi {
+  id: string;
+  name: string;
   getHomePage(page: number, request?: any): Promise<HomePageResult>;
   search(query: string, page?: number): Promise<SearchResult[]>;
   load(url: string): Promise<LoadResult>;

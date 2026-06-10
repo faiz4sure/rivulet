@@ -47,7 +47,10 @@ export function HomePage() {
                   backdropUrl: details.backgroundPosterUrl || details.posterUrl || "https://placehold.co/1280x720/png",
                   logoUrl: details.logoUrl, 
                   tags: [details.year?.toString() || "2024", `Score: ${details.score || "N/A"}`],
-                  description: details.plot
+                  description: details.plot,
+                  apiName: activeProvider,
+                  type: details.type,
+                  firstEpisodeUrl: details.episodes && details.episodes.length > 0 ? details.episodes[0].url : undefined
                 } as HeroCarouselItem;
               })
             );
@@ -67,7 +70,14 @@ export function HomePage() {
     navigate(`/movie?url=${encodeURIComponent(url)}&apiName=${encodeURIComponent(apiName)}`);
   };
 
+  const handleHeroInfoClick = (item: HeroCarouselItem) => {
+    navigate(`/movie?url=${encodeURIComponent(String(item.id))}&apiName=${encodeURIComponent(item.apiName || activeProvider)}`);
+  };
 
+  const handleHeroPlayClick = (item: HeroCarouselItem) => {
+    const playUrl = item.type === "TvSeries" && item.firstEpisodeUrl ? item.firstEpisodeUrl : String(item.id);
+    navigate(`/player?provider=${encodeURIComponent(item.apiName || activeProvider)}&url=${encodeURIComponent(playUrl)}`);
+  };
 
   return (
     <div className="relative w-full min-h-screen bg-background text-foreground overflow-x-hidden">
@@ -104,7 +114,11 @@ export function HomePage() {
             <div className="p-6 lg:p-10 relative z-40 space-y-12 pb-10 pt-24">
               {heroItems.length > 0 && (
                 <div className="-mx-6 lg:-mx-10 -mt-24 mb-10">
-                  <HeroCarousel items={heroItems} />
+                  <HeroCarousel 
+                    items={heroItems} 
+                    onInfoClick={handleHeroInfoClick}
+                    onPlayClick={handleHeroPlayClick}
+                  />
                 </div>
               )}
               {pluginData.sections.map((section, idx) => (
