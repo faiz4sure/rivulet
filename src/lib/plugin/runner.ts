@@ -18,18 +18,11 @@ export class PluginRunner {
     PluginRunner.instances.set(pluginId, this);
   }
 
-  async installDependencies(): Promise<void> {
-    await spawn(`${this.pluginId}-install`, {
-      sidecar: "deno",
-      args: ["cache", "--node-modules-dir=auto", this.scriptPath]
-    }).catch(err => {
-      if (!String(err).includes("process already exists")) throw err;
-    });
-  }
-
   private async getApi(): Promise<RivuletPlugin> {
     if (this.api) return this.api;
     if (this.initPromise) return this.initPromise;
+    const pluginDir = this.scriptPath.substring(0, this.scriptPath.lastIndexOf("/"));
+    const storageDir = `${pluginDir}/storage`;
 
     this.initPromise = (async () => {
       try {
@@ -39,8 +32,8 @@ export class PluginRunner {
             "run", 
             "--node-modules-dir=auto",
             "--allow-net", 
-            "--allow-read=../dummy/storage", 
-            "--allow-write=../dummy/storage", 
+            `--allow-read=${pluginDir}`, 
+            `--allow-write=${storageDir}`, 
             this.scriptPath
           ]
         });

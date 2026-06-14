@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { ChevronDown, Server } from "lucide-react";
-import { PluginRunner } from "@/lib/plugin/runner";
 import { motion, AnimatePresence } from "framer-motion";
+import { getInstalledPlugins, type InstalledPlugin } from "@/lib/plugin/manager";
 
 interface ProviderSelectorProps {
   selected: string;
@@ -14,8 +14,16 @@ export function ProviderSelector({ selected, onSelect }: ProviderSelectorProps) 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const runner = new PluginRunner("dummy-plugin", "../dummy/index.ts");
-    runner.getProviders().then(setProviders).catch(console.error);
+    async function loadProviders() {
+      const plugins = await getInstalledPlugins();
+      const allProviders = plugins.flatMap((plugin: InstalledPlugin) =>
+        plugin.providers
+          .filter(p => p.enabled !== false)
+          .map(p => ({ id: p.id, name: p.name }))
+      );
+      setProviders(allProviders);
+    }
+    loadProviders();
 
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -26,7 +34,7 @@ export function ProviderSelector({ selected, onSelect }: ProviderSelectorProps) 
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const selectedName = providers.find(p => p.id === selected)?.name || selected;
+  const selectedName = providers.find(p => p.id === selected)?.name || "Select Provider";
 
   return (
     <motion.div 
@@ -52,10 +60,10 @@ export function ProviderSelector({ selected, onSelect }: ProviderSelectorProps) 
           <ChevronDown className="w-4 h-4 text-neutral-300" />
         </motion.div>
       </motion.button>
-
+      
       <AnimatePresence>
         {isOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: -10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
@@ -65,19 +73,19 @@ export function ProviderSelector({ selected, onSelect }: ProviderSelectorProps) 
           >
             {providers.map((provider) => (
               <button
-                key={provider.id}
-                onClick={() => {
-                  onSelect(provider.id);
-                  setIsOpen(false);
-                }}
+                  key={provider.id}
+                  onClick={() => {
+                    onSelect(provider.id);
+                    setIsOpen(false);
+                  }}
                 className={`relative w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center justify-between group ${
-                  selected === provider.id 
+                    selected === provider.id
                     ? "text-white font-medium" 
                     : "text-neutral-400 hover:text-white hover:bg-white/5"
-                }`}
+                  }`}
                 role="option"
                 aria-selected={selected === provider.id}
-              >
+                >
                 <span className="relative z-10">{provider.name}</span>
                 {selected === provider.id && (
                   <motion.div 
@@ -86,7 +94,7 @@ export function ProviderSelector({ selected, onSelect }: ProviderSelectorProps) 
                   />
                 )}
               </button>
-            ))}
+              ))}
           </motion.div>
         )}
       </AnimatePresence>

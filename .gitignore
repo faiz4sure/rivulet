@@ -10,4 +10,6 @@ extension2/
 src-tauri/bin/
 dummy/
 mydocs/
+player-docs/dummy/sdk/
 player-docs/
+*.code-workspace

@@ -7,28 +7,71 @@ import { TopNav } from "@/components/top-nav";
 
 import { PluginRunner } from "@/lib/plugin/runner";
 import type { HomePageResult } from "@/lib/plugin/types";
+import { getInstalledPlugins, getPluginEntryPath, type InstalledPlugin } from "@/lib/plugin/manager";
 
 export function HomePage() {
-  const [activeProvider, setActiveProvider] = useState("movieboxProvider");
+  const [activeProvider, setActiveProvider] = useState<string>("");
   const [pluginData, setPluginData] = useState<HomePageResult | null>(null);
   const [heroItems, setHeroItems] = useState<HeroCarouselItem[]>([]);
   const [pluginError, setPluginError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [installedPlugins, setInstalledPlugins] = useState<InstalledPlugin[]>([]);
+  const [pluginPaths, setPluginPaths] = useState<Record<string, string>>({});
   const navigate = useNavigate();
 
+
   useEffect(() => {
+    async function checkPlugins() {
+      const plugins = await getInstalledPlugins();
+      if (plugins.length === 0) {
+        navigate("/welcome", { replace: true });
+        return;
+      }
+      setInstalledPlugins(plugins);
+
+    
+      const paths: Record<string, string> = {};
+      for (const plugin of plugins) {
+        paths[plugin.id] = await getPluginEntryPath(plugin);
+      }
+      setPluginPaths(paths);
+
+    
+      const allProviders = plugins.flatMap(p =>
+        p.providers.filter(prov => prov.enabled !== false)
+      );
+      if (allProviders.length > 0 && !activeProvider) {
+        setActiveProvider(allProviders[0].id);
+      }
+      setIsLoading(false);
+    }
+    checkPlugins();
+  }, [navigate]);
+
+  
+  const findPluginForProvider = (providerId: string): InstalledPlugin | undefined => {
+    return installedPlugins.find(p =>
+      p.providers.some(prov => prov.id === providerId)
+    );
+  };
+
+  useEffect(() => {
+    if (!activeProvider || installedPlugins.length === 0) return;
+
     async function loadData() {
       if (activeProvider === "None") {
         setPluginData(null);
         return;
       }
-      
+
+      const plugin = findPluginForProvider(activeProvider);
+      if (!plugin || !pluginPaths[plugin.id]) return;
+
       setIsLoading(true);
       setPluginError(null);
       setPluginData(null);
       try {
-        const runner = new PluginRunner("dummy-plugin", "../dummy/index.ts");
-        await runner.installDependencies();
+        const runner = new PluginRunner(plugin.id, pluginPaths[plugin.id]);
         
         const result = await runner.getHomePage(activeProvider, 1);
         if ((result as any).error) {
@@ -64,7 +107,7 @@ export function HomePage() {
       }
     }
     loadData();
-  }, [activeProvider]);
+  }, [activeProvider, installedPlugins, pluginPaths]);
 
   const handleMovieClick = (url: string, apiName: string) => {
     navigate(`/movie?url=${encodeURIComponent(url)}&apiName=${encodeURIComponent(apiName)}`);
@@ -96,7 +139,7 @@ export function HomePage() {
           {isLoading ? (
             <div className="flex flex-col items-center justify-center h-screen text-white text-xl">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-4"></div>
-              Loading dummy plugin process...
+              Loading HomePage...
             </div>
           ) : pluginError ? (
             <div className="flex flex-col items-center justify-center h-screen px-4 text-center">
@@ -144,7 +187,3 @@ export function HomePage() {
 }
 
 export const Component = HomePage;
-
-
-
-

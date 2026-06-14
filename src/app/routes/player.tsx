@@ -9,6 +9,7 @@ import '@vidstack/react/player/styles/default/layouts/video.css';
 import { MediaPlayer, MediaProvider, isHLSProvider, type MediaProviderAdapter } from '@vidstack/react';
 import { defaultLayoutIcons, DefaultVideoLayout } from '@vidstack/react/player/layouts/default';
 import { Loader2 } from "lucide-react";
+import { getInstalledPlugins, getPluginEntryPath } from "@/lib/plugin/manager";
 
 export function PlayerPage() {
   const [searchParams] = useSearchParams();
@@ -33,7 +34,14 @@ export function PlayerPage() {
     const fetchStream = async () => {
       try {
         setLoading(true);
-        const runner = new PluginRunner("dummy-plugin", "../dummy/index.ts");
+
+      
+        const plugins = await getInstalledPlugins();
+        const plugin = plugins.find(p => p.providers.some(prov => prov.id === provider));
+        if (!plugin) throw new Error(`No installed plugin found for provider "${provider}"`);
+        const entryPath = await getPluginEntryPath(plugin);
+
+        const runner = new PluginRunner(plugin.id, entryPath);
         const result = await runner.loadLinks(provider, url);
         if (result && (result as any).error) {
           throw new Error((result as any).message || "Failed to extract video link");

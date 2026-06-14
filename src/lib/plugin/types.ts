@@ -117,3 +117,53 @@ export interface ProviderApi {
   load(url: string): Promise<LoadResult>;
   loadLinks(data: string): Promise<StreamResult>;
 }
+
+
+export interface PluginManifest {
+  id: string;
+  name: string;
+  version: string;
+  description?: string;
+  author?: string;
+  icon?: string;
+  entry: string;
+  permissions?: Record<string, boolean>;
+  providers: PluginProviderMeta[];
+}
+
+export interface PluginProviderMeta {
+  id: string;
+  name: string;
+  description?: string;
+  icon?: string;
+  enabled?: boolean;
+}
+
+export interface InstalledPlugin {
+  id: string;
+  name: string;
+  version: string;
+  author?: string;
+  description?: string;
+  entry: string;
+  installedAt: string;
+  source: string;
+  providers: PluginProviderMeta[];
+}
+
+export type InstallStep =
+  | "resolving"
+  | "validated"
+  | "downloading"
+  | "extracting"
+  | "installing"
+  | "ready"
+  | "error";
+
+export interface InstallProgress {
+  step: InstallStep;
+  message: string;
+  pluginName?: string;
+  providerCount?: number;
+  error?: string;
+}

@@ -6,6 +6,7 @@ import { PluginRunner } from "@/lib/plugin/runner";
 import type { LoadResult } from "@/lib/plugin/types";
 import { CastList } from "@/components/cast-list";
 import { EpisodeCard } from "@/components/episode-card";
+import { getInstalledPlugins, getPluginEntryPath } from "@/lib/plugin/manager";
 
 function CustomSelect({ value, onChange, options }: { 
   value: number, 
@@ -70,7 +71,14 @@ export function MoviePage() {
     async function fetchData() {
       try {
         setLoading(true);
-        const runner = new PluginRunner("dummy-plugin", "../dummy/index.ts");
+
+        
+        const plugins = await getInstalledPlugins();
+        const plugin = plugins.find(p => p.providers.some(prov => prov.id === apiName));
+        if (!plugin) throw new Error(`No installed plugin found for provider "${apiName}"`);
+        const entryPath = await getPluginEntryPath(plugin);
+
+        const runner = new PluginRunner(plugin.id, entryPath);
         const result = await runner.load(apiName, url!);
         setData(result);
         if (result.episodes && result.episodes.length > 0) {
